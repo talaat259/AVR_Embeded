@@ -14,91 +14,42 @@
  */
 
 //#define F_CPU 16000000UL
-#include "util/delay.h"
-#include "../../LIB/utilities.h"
 #include "../../MCAL/DIO/DIO_Interface.h"
-#include "../../LIB/std_types.h"
-#include "KEY_PAD.h"
-#include "KEY_PAD_DFG.h"
+#include "KEYPAD_interface.h"
+#include "KEYPAD_cfg.h"
 
+extern const uint8 ROW[NUM_OF_ROWS];
+extern const uint8 COL[NUM_OF_COLS];
+extern const uint8 KEYS[NUM_OF_ROWS][NUM_OF_COLS];
 
+void  KEYPAD_init()
+{
+	for(int row_index=0; row_index<NUM_OF_ROWS ; row_index++)
+	{
+		DIO_writepin(ROW[row_index],HIGH);
 
-#define port PD
-#define rows 4
-#define col 4
+	}
 
+}
 
-
-uint8 keys[rows][col]={{1,2,3,4},{5,6,7,8},{9,10,'@','#'},{'%','+','-','*'}};
-
-
-uint8 ROW_Selector(void){
-	uint8 i;
-	uint8 value;
-	DioPin_type pins[4]={row0,row1,row2,row3};
-	DIO_ValueType ROW_Value;
-	for(i=0;i<rows;i++){
-		ROW_Value=GET_BIT(port,pins[i]);
-		if(!(ROW_Value)){
-			value=i;
-			break;
+uint8 KEYPAD_get_key()
+{
+	uint8 pressed_key = 0;
+	for(int row_index=0; row_index<NUM_OF_ROWS ; row_index++)
+	{
+		DIO_writepin(ROW[row_index],LOW);
+		for(int col_index=0; col_index<NUM_OF_COLS ; col_index++)
+		{
+			if(DIO_readpin(COL[col_index]) == 0)
+			{
+				pressed_key =  KEYS[row_index][col_index];
+			}
 		}
-
+		DIO_writepin(ROW[row_index],HIGH);
 	}
-	return value;
 
+	return pressed_key;
 }
 
-uint8 KEY_PAD(void){
-
-//DioPin_type row_colomns[rows][2]={{row0,col0},{row0,col1},{row0,col2},{row0,col3},
-//		{row1,col0},{row1,col1},{row1,col2},{row1,col3},
-//		{row2,col0},{row2,col1},{row2,col2},{row3,col3},
-//		{row0,col0},{row1,col1},{row2,col2},{row3,col3}
-
-	//								};
-
-DIO_ValueType COL0;
-DIO_ValueType COL1;
-DIO_ValueType COL2;
-DIO_ValueType COL3;
-uint8 ROW_COORDINATES;
-uint8 COLOMN_COORDINATES;
-while(1){
-	 COL0=GET_BIT(port,col0);
-	 COL1 =GET_BIT(port,col1);
-	 COL2=GET_BIT(port,col2);
-	 COL3=GET_BIT(port,col3);
-	if(!COL0){
-		COLOMN_COORDINATES=0;
-		ROW_COORDINATES=ROW_Selector();
-	}
-	else if ((!COL1)){
-		COLOMN_COORDINATES=1;
-		ROW_COORDINATES=ROW_Selector();
-	}
-	else if ((!COL2)){
-		COLOMN_COORDINATES=2;
-		ROW_COORDINATES=ROW_Selector();
-	}
-	else if ((!COL3)){
-		COLOMN_COORDINATES=3;
-		ROW_COORDINATES=ROW_Selector();
-
-	}
-	else{
-		return 200;
-	}
-
-	_delay_ms(30);
-	return keys[ROW_COORDINATES][COLOMN_COORDINATES];
 
 
-
-
-
-
-
-
-}
-}

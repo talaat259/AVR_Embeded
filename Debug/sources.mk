@@ -12,6 +12,7 @@ FLASH_IMAGE :=
 ELFS := 
 OBJS := 
 ASM_DEPS := 
+EEPROM_IMAGE := 
 S_DEPS := 
 SIZEDUMMY := 
 S_UPPER_DEPS := 
@@ -20,8 +21,10 @@ C_DEPS :=
 
 # Every subdirectory with source files must be described here
 SUBDIRS := \
+.metadata/.plugins/org.eclipse.cdt.make.core \
 APP \
 HAL/KEYPAD \
 HAL/LCD \
 MCAL/DIO \
+MCAL/EXI \
 
